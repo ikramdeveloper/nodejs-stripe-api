@@ -29,6 +29,7 @@ const paymentIntentController = async (req, res) => {
     console.error("error", err);
     res.status(err.statusCode || 500).send({
       status: "failed",
+      message: err.message,
     });
   }
 };
@@ -68,7 +69,7 @@ const paymentCheckoutController = async (req, res) => {
     console.error(err);
     res.status(err.statusCode || 500).send({
       status: "failed",
-      message: "Error in payment processing",
+      message: err.message,
     });
   }
 };
