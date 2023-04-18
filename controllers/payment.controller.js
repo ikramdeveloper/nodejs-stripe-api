@@ -14,7 +14,7 @@ const paymentIntentController = async (req, res) => {
         cvc: cvc,
       },
     });
-    paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       payment_method: paymentMethod.id,
       amount: amount * 100,
       currency: "usd",
@@ -22,14 +22,55 @@ const paymentIntentController = async (req, res) => {
       payment_method_types: ["card"],
     });
 
-    res.send(paymentIntent);
+    res.status(200).send({
+      status: paymentIntent.status,
+    });
   } catch (err) {
-    console.log("error", err);
+    console.error("error", err);
     res.status(err.statusCode || 500).send({
-      success: false,
-      message: `Error in payment processing: ${err.message}`,
+      status: "failed",
     });
   }
 };
 
-module.exports = { paymentIntentController };
+const paymentCheckoutController = async (req, res) => {
+  const { name, price, quantity } = req.body;
+  try {
+    const params = {
+      submit_type: "pay",
+      mode: "payment",
+      payment_method_types: ["card"],
+      billing_address_collection: "auto",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name,
+            },
+            unit_amount: price * 100,
+          },
+          adjustable_quantity: {
+            enabled: true,
+            minimum: 1,
+          },
+          quantity: quantity,
+        },
+      ],
+      success_url: `${req.headers.origin}/success`,
+      cancel_url: `${req.headers.origin}/cancel`,
+    };
+
+    const session = await stripe.checkout.sessions.create(params);
+
+    res.status(200).send({ status: "succeeded", id: session.id });
+  } catch (err) {
+    console.error(err);
+    res.status(err.statusCode || 500).send({
+      status: "failed",
+      message: "Error in payment processing",
+    });
+  }
+};
+
+module.exports = { paymentIntentController, paymentCheckoutController };

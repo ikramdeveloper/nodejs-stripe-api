@@ -10,4 +10,12 @@ const paymentIntent = {
   }),
 };
 
-module.exports = { paymentIntent };
+const paymentCheckout = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    price: Joi.number().required(),
+    quantity: Joi.number().required(),
+  }),
+};
+
+module.exports = { paymentIntent, paymentCheckout };

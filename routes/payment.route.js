@@ -9,4 +9,10 @@ route.post(
   paymentController.paymentIntentController
 );
 
+route.post(
+  "/checkout",
+  validate(paymentValidation.paymentCheckout),
+  paymentController.paymentCheckoutController
+);
+
 module.exports = route;
