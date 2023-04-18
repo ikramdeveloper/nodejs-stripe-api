@@ -47,14 +47,15 @@ const errorHandler = (err, req, res, next) => {
   console.error("error in error handler", err);
 
   if (process.env.NODE_ENV === "production") {
-    let error = { ...err };
-    if (err.name === "CastError") error = handleCastError(error);
-    if (err.name === "ValidationError") error = handleValidationError(error);
-    if (err.code === "LIMIT_UNEXPECTED_FILE")
-      error = handleUnexpectedFileError();
-    if (err.code === "LIMIT_FILE_SIZE") error = handleFileSizeError();
-    if (err.code === "LIMIT_FILE_COUNT") error = handleFileCountError();
-    sendErrorProd(error, res);
+    // let error = { ...err };
+    // if (err.name === "CastError") error = handleCastError(error);
+    // if (err.name === "ValidationError") error = handleValidationError(error);
+    // if (err.code === "LIMIT_UNEXPECTED_FILE")
+    //   error = handleUnexpectedFileError();
+    // if (err.code === "LIMIT_FILE_SIZE") error = handleFileSizeError();
+    // if (err.code === "LIMIT_FILE_COUNT") error = handleFileCountError();
+
+    sendErrorProd(err, res);
   } else {
     sendErrorDev(err, res);
   }
