@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 const paymentIntent = {
   body: Joi.object().keys({
-    number: Joi.number().required(),
+    number: Joi.alternatives().try(Joi.string(), Joi.number()).required(),
     expMonth: Joi.number().required(),
     expYear: Joi.number().required(),
     cvc: Joi.number().required(),
