@@ -1,8 +1,9 @@
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
+const AppError = require("../utils/appError");
 
-const paymentIntentController = async (req, res) => {
+const paymentIntentController = async (req, res, next) => {
   const { number, expMonth, expYear, cvc, amount } = req.body;
   try {
     let paymentMethod = await stripe.paymentMethods.create({
@@ -16,7 +17,7 @@ const paymentIntentController = async (req, res) => {
     });
     const paymentIntent = await stripe.paymentIntents.create({
       payment_method: paymentMethod.id,
-      amount: Math.round(amount) * 100,
+      amount: amount * 100,
       currency: "usd",
       confirm: true,
       payment_method_types: ["card"],
@@ -26,11 +27,7 @@ const paymentIntentController = async (req, res) => {
       status: paymentIntent.status,
     });
   } catch (err) {
-    console.error("error", err);
-    res.status(err.statusCode || 500).send({
-      status: "failed",
-      message: err.message,
-    });
+    next(new AppError(err.statusCode, err.message));
   }
 };
 
@@ -66,11 +63,7 @@ const paymentCheckoutController = async (req, res) => {
 
     res.status(200).send({ status: "succeeded", id: session.id });
   } catch (err) {
-    console.error(err);
-    res.status(err.statusCode || 500).send({
-      status: "failed",
-      message: err.message,
-    });
+    next(new AppError(err.statusCode, err.message));
   }
 };
 

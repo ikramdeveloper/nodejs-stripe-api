@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const pick = require("../utils/pick.util");
+const AppError = require("../utils/appError");
 
 const validate = (schema) => (req, res, next) => {
   const validSchema = pick(schema, ["params", "query", "body"]);
@@ -9,14 +10,10 @@ const validate = (schema) => (req, res, next) => {
     .validate(object);
 
   if (error) {
-    console.error("error while validating", error);
     const errorMessage = error.details
       .map((details) => details.message)
       .join(", ");
-    return res.status(400).send({
-      status: "failed",
-      message: errorMessage,
-    });
+    next(new AppError(400, errorMessage));
   }
   Object.assign(req, value);
   return next();
